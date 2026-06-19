@@ -41,7 +41,7 @@ function ResultCard({ result, onReset }) {
 
 		if (navigator.share) {
 			await navigator.share({
-				title: 'DawaCheck result',
+				title: 'MedVerify result',
 				text: `${result?.medicine || 'Medicine'}: ${theme.label}`,
 			})
 			return
@@ -69,11 +69,11 @@ function ResultCard({ result, onReset }) {
 			dueAt: Date.now() + 8 * 60 * 60 * 1000,
 		}
 
-		localStorage.setItem('dawacheck_reminder', JSON.stringify(reminder))
+		localStorage.setItem('medverify_reminder', JSON.stringify(reminder))
 
 		if ('serviceWorker' in navigator) {
 			const registration = await navigator.serviceWorker.ready
-			await registration.showNotification('DawaCheck reminder set', {
+			await registration.showNotification('MedVerify reminder set', {
 				body: `We will remind you to recheck ${reminder.medicine} in 8 hours.`,
 				icon: '/icon-192.png',
 			})

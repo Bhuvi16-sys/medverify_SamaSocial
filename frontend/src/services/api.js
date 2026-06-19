@@ -7,6 +7,23 @@ const client = axios.create({
 	timeout: 12000,
 })
 
+// Add token to requests if available
+client.interceptors.request.use((config) => {
+	const token = localStorage.getItem('authToken')
+	if (token) {
+		config.headers.Authorization = `Bearer ${token}`
+	}
+	return config
+})
+
+export const register = (email, password, name) =>
+	client.post('/api/auth/register', { email, password, name })
+
+export const login = (email, password) =>
+	client.post('/api/auth/login', { email, password })
+
+export const getCurrentUser = () => client.get('/api/auth/me')
+
 export const verifyMedicine = (name) =>
 	client.get('/api/verify', { params: { name } })
 
@@ -19,3 +36,4 @@ export const checkInteractions = (medicines) =>
 export const getHeatmap = () => client.get('/api/heatmap')
 
 export { BASE }
+

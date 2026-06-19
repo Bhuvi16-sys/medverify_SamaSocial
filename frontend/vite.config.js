@@ -14,8 +14,8 @@ export default defineConfig({
 				enabled: true,
 			},
 			manifest: {
-				name: 'DawaCheck',
-				short_name: 'DawaCheck',
+				name: 'MedVerify',
+				short_name: 'MedVerify',
 				theme_color: '#0C2340',
 				background_color: '#ffffff',
 				display: 'standalone',

@@ -3,9 +3,14 @@ import CameraScanner from './components/CameraScanner'
 import ResultCard from './components/ResultCard'
 import InteractionBox from './components/InteractionBox'
 import HeatMap from './components/HeatMap'
-import { logScan, verifyMedicine } from './services/api'
+import WelcomeScreen from './components/WelcomeScreen'
+import Login from './components/Login'
+import Signup from './components/Signup'
+import AppHeader from './components/AppHeader'
+import AppFooter from './components/AppFooter'
+import { logScan, verifyMedicine, getCurrentUser } from './services/api'
 
-const STREAK_KEY = 'dawacheck_scan_days'
+const STREAK_KEY = 'medverify_scan_days'
 
 function getStreakFromStorage() {
 	try {
@@ -83,23 +88,47 @@ function App() {
 	const [loading, setLoading] = useState(false)
 	const [error, setError] = useState('')
 	const [scanStreak, setScanStreak] = useState(0)
+	const [showWelcome, setShowWelcome] = useState(true)
+	const [currentUser, setCurrentUser] = useState(null)
+	const [isAuthenticated, setIsAuthenticated] = useState(false)
+	const [authMode, setAuthMode] = useState('login') // 'login' or 'signup'
+	const [checkingAuth, setCheckingAuth] = useState(true)
 
 	const hasResult = useMemo(() => Boolean(scanResult), [scanResult])
 
 	useEffect(() => {
 		setScanStreak(getStreakFromStorage())
 
+		// Check if user is already authenticated
+		const token = localStorage.getItem('authToken')
+		if (token) {
+			getCurrentUser()
+				.then((response) => {
+					setCurrentUser(response.data.user)
+					setIsAuthenticated(true)
+				})
+				.catch(() => {
+					localStorage.removeItem('authToken')
+					setIsAuthenticated(false)
+				})
+				.finally(() => {
+					setCheckingAuth(false)
+				})
+		} else {
+			setCheckingAuth(false)
+		}
+
 		try {
-			const raw = localStorage.getItem('dawacheck_reminder')
+			const raw = localStorage.getItem('medverify_reminder')
 			if (!raw) return
 			const reminder = JSON.parse(raw)
 			if (!reminder?.dueAt || Date.now() < Number(reminder.dueAt)) return
 
 			notifyIfPossible(
-				'DawaCheck reminder',
+				'MedVerify reminder',
 				`Time to recheck ${reminder.medicine || 'your medicine'} and confirm safety.`,
 			)
-			localStorage.removeItem('dawacheck_reminder')
+			localStorage.removeItem('medverify_reminder')
 		} catch {
 			// Ignore malformed reminder data.
 		}
@@ -126,7 +155,7 @@ function App() {
 			recordScanDay()
 			setScanStreak(getStreakFromStorage())
 			notifyIfPossible(
-				'DawaCheck scan complete',
+					'MedVerify scan complete',
 				`${normalized.medicine || 'Medicine'} marked as ${normalized.status}.`,
 			)
 
@@ -152,7 +181,7 @@ function App() {
 			recordScanDay()
 			setScanStreak(getStreakFromStorage())
 			notifyIfPossible(
-				'DawaCheck scan complete',
+				'MedVerify scan complete',
 				'Using offline/demo result. Please verify when network is back.',
 			)
 		} finally {
@@ -165,34 +194,108 @@ function App() {
 		setError('')
 	}
 
+	const handleLoginSuccess = (user) => {
+		setCurrentUser(user)
+		setIsAuthenticated(true)
+		setShowWelcome(false)
+		setAuthMode('login')
+	}
+
+	const handleSignupSuccess = (user) => {
+		setCurrentUser(user)
+		setIsAuthenticated(true)
+		setShowWelcome(false)
+		setAuthMode('login')
+	}
+
+	const handleLogout = () => {
+		localStorage.removeItem('authToken')
+		setCurrentUser(null)
+		setIsAuthenticated(false)
+		setShowWelcome(true)
+		setAuthMode('login')
+	}
+
+	const handleGetStarted = () => {
+		setShowWelcome(false)
+		if (isAuthenticated) {
+			// Already logged in, go to main app
+			return
+		} else {
+			// Not logged in, show login page
+			setAuthMode('login')
+		}
+	}
+
 	const primaryMedicine = scanResult?.medicine || 'No medicine scanned yet'
 	const quickStatus = scanResult?.status || 'ready'
 
+	if (checkingAuth) {
+		return (
+			<>
+				<AppHeader currentUser={currentUser} onLogout={handleLogout} onGetStarted={handleGetStarted} />
+				<div
+					style={{
+						display: 'flex',
+						alignItems: 'center',
+						justifyContent: 'center',
+						minHeight: 'calc(100vh - 200px)',
+					}}
+				>
+					Loading...
+				</div>
+				<AppFooter />
+			</>
+		)
+	}
+
+	// Show welcome page first (public, no auth needed)
+	if (showWelcome) {
+		return (
+			<>
+				<AppHeader currentUser={currentUser} onLogout={handleLogout} onGetStarted={handleGetStarted} />
+				<WelcomeScreen onGetStarted={handleGetStarted} />
+				<AppFooter />
+			</>
+		)
+	}
+
+	// Show login/signup if user is trying to get started but not authenticated
+	if (authMode === 'login' && !isAuthenticated) {
+		return (
+			<>
+				<AppHeader currentUser={currentUser} onLogout={handleLogout} onGetStarted={handleGetStarted} />
+				<Login
+					onLoginSuccess={handleLoginSuccess}
+					onSwitchToSignup={() => setAuthMode('signup')}
+				/>
+				<AppFooter />
+			</>
+		)
+	}
+
+	if (authMode === 'signup' && !isAuthenticated) {
+		return (
+			<>
+				<AppHeader currentUser={currentUser} onLogout={handleLogout} onGetStarted={handleGetStarted} />
+				<Signup
+					onSignupSuccess={handleSignupSuccess}
+					onSwitchToLogin={() => setAuthMode('login')}
+				/>
+				<AppFooter />
+			</>
+		)
+	}
+
 	return (
-		<main className="app-shell">
-			<div className="phone-frame">
-				<div className="app-backdrop app-backdrop-one" aria-hidden="true" />
-				<div className="app-backdrop app-backdrop-two" aria-hidden="true" />
+		<>
+			<AppHeader currentUser={currentUser} onLogout={handleLogout} onGetStarted={handleGetStarted} />
+			<main className="app-shell">
+				<div className="phone-frame">
+					<div className="app-backdrop app-backdrop-one" aria-hidden="true" />
+					<div className="app-backdrop app-backdrop-two" aria-hidden="true" />
 
-				<header className="topbar">
-					<button className="icon-button" type="button" aria-label="Open menu">
-						<span />
-						<span />
-						<span />
-					</button>
-					<div className="brand-lockup">
-						<div className="brand-mark">+</div>
-						<div>
-							<p className="brand-name">DawaCheck</p>
-							<p className="brand-caption">Safer medicine decisions</p>
-						</div>
-					</div>
-					<button className="language-pill" type="button">
-						Hindi
-					</button>
-				</header>
-
-				<section className="hero-card">
+					<section className="hero-card">
 					<p className="eyebrow">Scan. Verify.</p>
 					<h1>
 						Trust your <span>medicine.</span>
@@ -289,6 +392,8 @@ function App() {
 				</nav>
 			</div>
 		</main>
+			<AppFooter />
+		</>
 	)
 }
 

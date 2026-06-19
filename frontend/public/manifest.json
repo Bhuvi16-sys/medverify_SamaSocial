@@ -1,6 +1,6 @@
 {
-	"name": "DawaCheck",
-	"short_name": "DawaCheck",
+	"name": "MedVerify",
+	"short_name": "MedVerify",
 	"description": "Scan medicines, verify safety, and view counterfeit heatmaps.",
 	"start_url": "/",
 	"display": "standalone",

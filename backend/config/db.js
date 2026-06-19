@@ -1,4 +1,47 @@
 import mongoose from 'mongoose'
+import { Resolver, resolveSrv, resolveTxt } from 'dns/promises'
+
+const dnsServers = [
+	['1.1.1.1', '1.0.0.1'],
+	['8.8.8.8', '8.8.4.4'],
+	['9.9.9.9', '149.112.112.112'],
+]
+
+const resolveSrvWithFallback = async (host) => {
+	try {
+		return await resolveSrv(host)
+	} catch (error) {
+		for (const servers of dnsServers) {
+			try {
+				const resolver = new Resolver()
+				resolver.setServers(servers)
+				return await resolver.resolveSrv(host)
+			} catch {
+				// Try next configured DNS provider.
+			}
+		}
+
+		throw error
+	}
+}
+
+const resolveTxtWithFallback = async (host) => {
+	try {
+		return await resolveTxt(host)
+	} catch {
+		for (const servers of dnsServers) {
+			try {
+				const resolver = new Resolver()
+				resolver.setServers(servers)
+				return await resolver.resolveTxt(host)
+			} catch {
+				// TXT records are optional, continue trying or return empty.
+			}
+		}
+
+		return []
+	}
+}
 
 const shouldUseDirectFallback = (mongoUri, error) => {
 	const message = String(error?.message || '')
@@ -8,31 +51,15 @@ const shouldUseDirectFallback = (mongoUri, error) => {
 	)
 }
 
-const resolveDnsJson = async (name, type) => {
-	const endpoint = `https://dns.google/resolve?name=${encodeURIComponent(name)}&type=${type}`
-	const response = await fetch(endpoint)
-	if (!response.ok) {
-		throw new Error(`DNS lookup failed for ${name} (${type})`)
-	}
-
-	const payload = await response.json()
-	return Array.isArray(payload.Answer) ? payload.Answer : []
-}
-
 const buildDirectMongoUri = async (mongoUri) => {
 	const source = new URL(mongoUri)
-	const srvName = `_mongodb._tcp.${source.hostname}`
-
 	const [srvAnswers, txtAnswers] = await Promise.all([
-		resolveDnsJson(srvName, 'SRV'),
-		resolveDnsJson(source.hostname, 'TXT'),
+		resolveSrvWithFallback(`_mongodb._tcp.${source.hostname}`),
+		resolveTxtWithFallback(source.hostname),
 	])
 
 	const hosts = srvAnswers
-		.map((answer) => String(answer.data || '').trim())
-		.map((record) => record.split(/\s+/))
-		.filter((parts) => parts.length >= 4)
-		.map((parts) => `${parts[3].replace(/\.$/, '')}:${parts[2]}`)
+		.map((record) => `${record.name.replace(/\.$/, '')}:${record.port}`)
 
 	if (hosts.length === 0) {
 		throw new Error('Could not resolve Atlas SRV hosts for direct MongoDB connection.')
@@ -42,7 +69,7 @@ const buildDirectMongoUri = async (mongoUri) => {
 	params.set('ssl', 'true')
 
 	for (const answer of txtAnswers) {
-		const text = String(answer.data || '').replace(/^"|"$/g, '')
+		const text = Array.isArray(answer) ? answer.join('') : String(answer || '')
 		const extra = new URLSearchParams(text)
 		for (const [key, value] of extra.entries()) {
 			if (!params.has(key)) params.set(key, value)
@@ -71,8 +98,13 @@ export const connectDB = async () => {
 			throw error
 		}
 
-		const directUri = await buildDirectMongoUri(mongoUri)
-		await mongoose.connect(directUri)
+		try {
+			const directUri = await buildDirectMongoUri(mongoUri)
+			await mongoose.connect(directUri)
+		} catch {
+			// Preserve the original connection error because it is usually more actionable.
+			throw error
+		}
 	}
 
 	console.log('Connected to MongoDB')

@@ -1,0 +1,149 @@
+.app-header {
+	background: white;
+	border-bottom: 1px solid #e7dece;
+	padding: 1rem 0;
+	box-shadow: 0 1px 3px rgba(32, 54, 43, 0.05);
+	position: sticky;
+	top: 0;
+	z-index: 100;
+}
+
+.header-container {
+	max-width: 100%;
+	margin: 0;
+	padding: 0 1rem;
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 2rem;
+}
+
+.header-brand {
+	display: flex;
+	align-items: center;
+	gap: 0.6rem;
+	flex-shrink: 0;
+	cursor: pointer;
+	position: fixed;
+	left: 1rem;
+	top: 1rem;
+	z-index: 101;
+}
+
+.header-brand h1 {
+	margin: 0;
+	font-size: 1.1rem;
+	font-weight: 800;
+	color: #16261d;
+	letter-spacing: -0.5px;
+	white-space: nowrap;
+}
+
+.header-nav {
+	display: flex;
+	align-items: center;
+	gap: 2rem;
+	justify-content: center;
+	flex: 1;
+	margin: 0 auto;
+}
+
+.nav-link {
+	text-decoration: none;
+	color: #16261d;
+	font-size: 0.95rem;
+	font-weight: 600;
+	transition: color 0.2s ease;
+	white-space: nowrap;
+}
+
+.nav-link:hover {
+	color: #158448;
+}
+
+.nav-link:first-child {
+	color: #158448;
+	text-decoration: underline;
+	text-decoration-thickness: 2px;
+	text-underline-offset: 0.35rem;
+}
+
+.header-actions {
+	display: flex;
+	align-items: center;
+	gap: 1rem;
+	flex-shrink: 0;
+}
+
+.user-name {
+	font-size: 0.9rem;
+	font-weight: 600;
+	color: #16261d;
+}
+
+.btn-primary {
+	background: linear-gradient(145deg, #158448, #0f6f3c);
+	color: white;
+	border: none;
+	padding: 0.65rem 1.2rem;
+	border-radius: 6px;
+	font-size: 0.9rem;
+	font-weight: 700;
+	cursor: pointer;
+	transition: all 0.2s ease;
+}
+
+.btn-primary:hover {
+	transform: translateY(-2px);
+	box-shadow: 0 4px 12px rgba(21, 132, 72, 0.3);
+}
+
+.btn-secondary {
+	background: rgba(220, 53, 69, 0.1);
+	border: 1px solid rgba(220, 53, 69, 0.3);
+	color: #dc3545;
+	padding: 0.6rem 1rem;
+	border-radius: 6px;
+	font-size: 0.85rem;
+	font-weight: 600;
+	cursor: pointer;
+	transition: all 0.2s ease;
+}
+
+.btn-secondary:hover {
+	background: rgba(220, 53, 69, 0.2);
+	border-color: rgba(220, 53, 69, 0.5);
+}
+
+@media (max-width: 980px) {
+	.header-nav {
+		gap: 1.5rem;
+	}
+
+	.nav-link {
+		font-size: 0.85rem;
+	}
+}
+
+@media (max-width: 768px) {
+	.header-container {
+		gap: 1rem;
+	}
+
+	.header-nav {
+		display: none;
+	}
+
+	.header-brand h1 {
+		font-size: 1.1rem;
+	}
+
+	.user-name {
+		display: none;
+	}
+
+	.get-started-btn {
+		padding: 0.55rem 1rem;
+		font-size: 0.85rem;
+	}
+}
