@@ -1,0 +1,81 @@
+.static-page {
+	max-width: 680px;
+	margin: 0 auto;
+	padding: 0 1rem 3rem;
+	box-sizing: border-box;
+	width: 100%;
+}
+
+.static-hero {
+	padding: 2rem 0 1.2rem;
+	text-align: center;
+}
+
+.static-kicker {
+	margin: 0;
+	font-size: 0.72rem;
+	font-weight: 800;
+	letter-spacing: 0.1em;
+	text-transform: uppercase;
+	color: #1a7040;
+}
+
+.static-title {
+	margin: 0.4rem 0 0;
+	font-size: clamp(1.5rem, 4vw, 2rem);
+	font-weight: 800;
+	color: #132b20;
+	letter-spacing: -0.02em;
+}
+
+.static-card {
+	background: #ffffff;
+	border: 1px solid #dde9e3;
+	border-radius: 20px;
+	padding: 1.4rem 1.5rem;
+	box-shadow: 0 10px 24px rgba(21, 59, 38, 0.07);
+	display: flex;
+	flex-direction: column;
+	gap: 0.3rem;
+}
+
+.static-card h2 {
+	margin: 1rem 0 0.35rem;
+	font-size: 1rem;
+	font-weight: 800;
+	color: #132b20;
+}
+
+.static-card h2:first-child {
+	margin-top: 0;
+}
+
+.static-card p {
+	margin: 0;
+	font-size: 0.91rem;
+	line-height: 1.6;
+	color: #4e6157;
+}
+
+.static-card a {
+	color: #1a7040;
+	font-weight: 600;
+}
+
+.static-team {
+	margin: 0.5rem 0 0 1.1rem;
+	padding: 0;
+	display: flex;
+	flex-direction: column;
+	gap: 0.3rem;
+	font-size: 0.91rem;
+	color: #4e6157;
+	line-height: 1.6;
+}
+
+@media (max-width: 480px) {
+	.static-card {
+		padding: 1rem;
+		border-radius: 14px;
+	}
+}

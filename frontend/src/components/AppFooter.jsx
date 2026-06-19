@@ -1,3 +1,4 @@
+import Logo from './Logo'
 import './AppFooter.css'
 
 export default function AppFooter() {
@@ -5,31 +6,24 @@ export default function AppFooter() {
 
 	return (
 		<footer className="app-footer">
-			<div className="footer-container">
-				<div className="footer-section">
-					<h3>MedVerify</h3>
-					<p>Verify medicines safely and affordably</p>
+			<div className="footer-inner">
+				<div className="footer-brand">
+					<Logo size={36} />
+					<div>
+						<p className="footer-brand-name">MedVerify</p>
+						<p className="footer-brand-sub">Scan. Verify. Trust.</p>
+					</div>
 				</div>
-				<div className="footer-section">
-					<h4>Quick Links</h4>
-					<ul>
-						<li><a href="#about">About</a></li>
-						<li><a href="#privacy">Privacy</a></li>
-						<li><a href="#terms">Terms</a></li>
-						<li><a href="#contact">Contact</a></li>
-					</ul>
-				</div>
-				<div className="footer-section">
-					<h4>Follow Us</h4>
-					<ul>
-						<li><a href="#twitter">Twitter</a></li>
-						<li><a href="#facebook">Facebook</a></li>
-						<li><a href="#instagram">Instagram</a></li>
-					</ul>
+
+				<div className="footer-links">
+					<a href="/about" className="footer-link" onClick={(e) => { e.preventDefault(); window.history.pushState({}, '', '/about'); window.dispatchEvent(new PopStateEvent('popstate')) }}>About</a>
+					<a href="/privacy" className="footer-link" onClick={(e) => { e.preventDefault(); window.history.pushState({}, '', '/privacy'); window.dispatchEvent(new PopStateEvent('popstate')) }}>Privacy</a>
+					<a href="/contact" className="footer-link" onClick={(e) => { e.preventDefault(); window.history.pushState({}, '', '/contact'); window.dispatchEvent(new PopStateEvent('popstate')) }}>Contact</a>
 				</div>
 			</div>
+
 			<div className="footer-bottom">
-				<p>&copy; {currentYear} MedVerify. All rights reserved. Free and open source.</p>
+				<p>Made with ♥ by <strong>VisionForge</strong> for <strong>SamaSocial Build for Good Hackathon</strong> &mdash; &copy; {currentYear} MedVerify</p>
 			</div>
 		</footer>
 	)
