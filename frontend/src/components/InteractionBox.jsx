@@ -1,185 +1,155 @@
-import { useMemo, useState } from 'react'
-import { checkInteractions, verifyMedicineByName } from '../services/api'
-import { showToast } from '../services/toast'
+import { useState } from 'react'
+import { checkInteractions } from '../services/api'
+import './InteractionBox.css'
+
+const MAX_MEDICINES = 2
 
 function InteractionBox() {
-	const [input, setInput] = useState('')
+	const [medicines, setMedicines] = useState(['', ''])
 	const [loading, setLoading] = useState(false)
 	const [error, setError] = useState('')
 	const [result, setResult] = useState(null)
 	const [verifyLoading, setVerifyLoading] = useState(false)
 	const [verifyResult, setVerifyResult] = useState(null)
 
-	const medicineList = useMemo(
-		() =>
-			input
-				.split(',')
-				.map((item) => item.trim())
-				.filter(Boolean),
-		[input],
-	)
+	const updateMedicine = (index, value) => {
+		const updated = [...medicines]
+		updated[index] = value
+		setMedicines(updated)
+		setResult(null)
+		setError('')
+	}
+
+	const removeMedicine = (index) => {
+		const updated = [...medicines]
+		updated[index] = ''
+		setMedicines(updated)
+		setResult(null)
+		setError('')
+	}
 
 	const submit = async (event) => {
 		event.preventDefault()
-		if (medicineList.length < 2) {
-			setError('Enter at least 2 medicine names separated by commas.')
+		const filled = medicines.map((m) => m.trim()).filter(Boolean)
+		if (filled.length < 2) {
+			setError('Enter both medicine names before checking.')
 			return
 		}
-
 		setLoading(true)
 		setError('')
-
 		try {
-			const response = await checkInteractions(medicineList)
+			const response = await checkInteractions(filled)
 			setResult(response.data)
-		} catch (apiError) {
-			// Fallback: perform a simple local interaction analysis when API is unavailable
-			const fallback = localFallbackAnalysis(medicineList)
-			setResult(fallback)
-			setError('Could not reach interaction service; showing local analysis.')
+		} catch {
+			setResult({
+				safe: false,
+				level: 'high',
+				summary: 'Interaction data unavailable right now. Please try again later.',
+				interactions: [],
+			})
 		} finally {
 			setLoading(false)
 		}
 	}
 
-	const handleVerifyMedicine = async (medicineName) => {
-		const name = String(medicineName || medicineList[0] || '').trim()
-		if (!name) {
-			showToast('Please provide a medicine name to verify.', 'error')
-			return
-		}
+	const riskLevel = result
+		? result.safe
+			? 'safe'
+			: result.level === 'high' || result.level === 'flagged'
+				? 'high'
+				: 'moderate'
+		: null
 
-		setVerifyLoading(true)
-		setVerifyResult(null)
-		try {
-			const resp = await verifyMedicineByName(name)
-			setVerifyResult(resp?.data || null)
-			showToast('Verification completed.', 'success')
-		} catch (err) {
-			console.error('verifyMedicineByName error', err)
-			showToast('Verification failed. Try again.', 'error')
-		} finally {
-			setVerifyLoading(false)
-		}
-	}
+	const riskLabel =
+		riskLevel === 'safe'
+			? 'Safe Combination'
+			: riskLevel === 'high'
+				? 'High Risk Interaction'
+				: 'Moderate Interaction'
 
-	// Simple local heuristic for basic interaction checks
-	function localFallbackAnalysis(list) {
-		const lower = list.map((s) => s.toLowerCase())
-		const interactions = []
-		let safe = true
-
-		// Define some known risky pairs (not exhaustive)
-		const rules = [
-			{ a: 'warfarin', b: 'aspirin', level: 'danger', note: 'Increased bleeding risk when combined with aspirin.' },
-			{ a: 'warfarin', b: 'ibuprofen', level: 'danger', note: 'NSAIDs can increase bleeding risk with warfarin.' },
-			{ a: 'metformin', b: 'contrast', level: 'caution', note: 'Contrast media can affect kidney function; monitor closely.' },
-			{ a: 'paracetamol', b: 'acetaminophen', level: 'safe', note: 'These are synonyms; avoid double-dosing.' },
-			{ a: 'paracetamol', b: 'ibuprofen', level: 'caution', note: 'Generally used together but watch dosing and patient factors.' },
-		]
-
-		for (let i = 0; i < lower.length; i += 1) {
-			for (let j = i + 1; j < lower.length; j += 1) {
-				const a = lower[i]
-				const b = lower[j]
-				for (const rule of rules) {
-					if ((a.includes(rule.a) && b.includes(rule.b)) || (a.includes(rule.b) && b.includes(rule.a))) {
-						interactions.push(`${list[i]} + ${list[j]}: ${rule.note}`)
-						if (rule.level === 'danger' || rule.level === 'flagged') safe = false
-					}
-				}
-			}
-		}
-
-		const summary = interactions.length
-			? interactions.slice(0, 3).join(' \n')
-			: 'No known interactions found in the local rule set. Consult a clinician for final advice.'
-
-		return {
-			safe,
-			level: safe ? 'genuine' : 'flagged',
-			summary,
-			interactions,
-		}
-	}
-
-	const level = result?.level || (result?.safe ? 'genuine' : 'flagged')
+	const filled = medicines.map((m) => m.trim()).filter(Boolean)
+	const pair = filled.length >= 2 ? `Between ${filled[0]} and ${filled[1]}` : ''
 
 	return (
-		<section className="panel interaction-box">
-			<div className="panel-heading">
-				<div>
-					<p className="section-kicker">Safety review</p>
-					<h2>Drug Interactions</h2>
-				</div>
-				<span className="mini-badge">AI</span>
+		<div className="ib-page">
+			<div className="ib-hero">
+				<p className="ib-hero-kicker">Drug Interaction Checker</p>
+				<h1 className="ib-hero-title">Are your medicines safe together?</h1>
+				<p className="ib-hero-sub">Enter two medicines below to instantly check for known interaction risks.</p>
 			</div>
-			<form onSubmit={submit}>
-				<label htmlFor="medicines-input" className="label">
-					Add medicines separated by commas
-				</label>
-				<input
-					id="medicines-input"
-					type="text"
-					className="field"
-					placeholder="Paracetamol, Ibuprofen"
-					value={input}
-					onChange={(event) => setInput(event.target.value)}
-				/>
 
-				{medicineList.length > 0 ? (
-					<div className="chip-row">
-						{medicineList.map((medicine) => (
-							<span className="medicine-chip" key={medicine}>
-								{medicine}
-							</span>
-						))}
+			<section className="ib-card">
+				<div className="ib-header">
+					<div className="ib-header-top">
+						<span className="ib-icon">💊</span>
+						<div>
+							<p className="ib-kicker">Safety review</p>
+							<h2 className="ib-title">Drug Interactions</h2>
+						</div>
 					</div>
-				) : null}
+					<p className="ib-header-desc">Check if two medicines are safe to take together</p>
+				</div>
 
-				<div className="flex items-center gap-3">
-					{medicineList.length >= 1 ? (
-						<button
-							type="button"
-							className="button button-secondary"
-							onClick={() => handleVerifyMedicine(medicineList[0])}
-							disabled={verifyLoading}
-						>
-							{verifyLoading ? 'Verifying…' : 'Verify'}
-						</button>
-					) : null}
-					<button className="button primary" type="submit" disabled={loading}>
-						{loading ? 'Checking...' : 'Check Safety'}
+				{result && riskLevel !== null && (
+					<div className={`ib-alert ib-alert--${riskLevel}`}>
+						<span className="ib-alert-icon">{riskLevel === 'safe' ? '✓' : '⚠'}</span>
+						<div>
+							<p className="ib-alert-label">{riskLabel}</p>
+							{pair && <p className="ib-alert-sub">{pair}</p>}
+							{result.summary && <p className="ib-alert-summary">{result.summary}</p>}
+							{Array.isArray(result.interactions) && result.interactions.length > 0 && (
+								<ul className="ib-interactions-list">
+									{result.interactions.map((item, i) => (
+										<li key={i}>{item}</li>
+									))}
+								</ul>
+							)}
+						</div>
+					</div>
+				)}
+
+				<form onSubmit={submit} className="ib-form">
+					<p className="ib-section-label">Your Medicines</p>
+					<ul className="ib-med-list">
+						{medicines.map((med, index) => (
+							<li key={index} className="ib-med-row">
+								<span className="ib-med-num">{index + 1}</span>
+								<input
+									className="ib-med-input"
+									type="text"
+									placeholder={`Medicine ${index + 1} name`}
+									value={med}
+									onChange={(e) => updateMedicine(index, e.target.value)}
+								/>
+								{med.trim() && (
+									<button
+										type="button"
+										className="ib-remove-btn"
+										onClick={() => removeMedicine(index)}
+										aria-label={`Remove medicine ${index + 1}`}
+									>
+										×
+									</button>
+								)}
+							</li>
+						))}
+					</ul>
+
+					{error && <p className="ib-error">{error}</p>}
+
+					<button className="ib-submit-btn" type="submit" disabled={loading}>
+						{loading ? 'Checking…' : 'Check Safety'}
 					</button>
-				</div>
-			</form>
+				</form>
+			</section>
 
-			{error ? <p className="error-text">{error}</p> : null}
-
-			{verifyResult ? (
-				<div className="panel-wrapper mt-4 p-4 rounded-lg border border-gray-100 bg-white">
-					<h4 className="text-sm font-bold">Verification</h4>
-					<p className="text-sm text-slate-700 mt-2">{verifyResult?.medicine || 'Result'}</p>
-					<p className="text-sm text-slate-600 mt-1">Status: {verifyResult?.status || 'unknown'}</p>
-					{verifyResult?.advice ? <p className="mt-2 text-sm text-slate-600">{verifyResult.advice}</p> : null}
-				</div>
-			) : null}
-
-			{result ? (
-				<div className={`interaction-result ${level}`}>
-					<h3>{result?.safe ? 'Safe combination' : 'Use caution'}</h3>
-					<p>{result?.summary || 'No interaction details were returned.'}</p>
-
-					{Array.isArray(result?.interactions) && result.interactions.length > 0 ? (
-						<ul>
-							{result.interactions.map((item, index) => (
-								<li key={`${item}-${index}`}>{item}</li>
-							))}
-						</ul>
-					) : null}
-				</div>
-			) : null}
-		</section>
+			<div className="ib-tip-card">
+				<div className="ib-tip-icon">🔔</div>
+				<p className="ib-tip-text">
+					Always consult your doctor before starting or stopping any medicine.
+				</p>
+			</div>
+		</div>
 	)
 }
 

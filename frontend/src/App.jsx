@@ -4,13 +4,34 @@ import ResultCard from './components/ResultCard'
 import InteractionBox from './components/InteractionBox'
 import HeatMap from './components/HeatMap'
 import WelcomeScreen from './components/WelcomeScreen'
+import HowItWorks from './components/HowItWorks'
 import Login from './components/Login'
 import Signup from './components/Signup'
 import AppHeader from './components/AppHeader'
 import AppFooter from './components/AppFooter'
+import Contact from './components/Contact'
+import VerifyMedicine from './components/VerifyMedicine'
+import About from './components/About'
+import Privacy from './components/Privacy'
 import { logScan, verifyMedicine, getCurrentUser } from './services/api'
 
 const STREAK_KEY = 'medverify_scan_days'
+const EXPLORE_PATH = '/explore'
+const LEGACY_EXPLORE_PATH = '/how-it-works'
+const INTERACTION_CHECK_PATH = '/interaction-check'
+const CONTACT_PATH = '/contact'
+const VERIFY_MEDICINE_PATH = '/verify-medicine'
+const ABOUT_PATH = '/about'
+const PRIVACY_PATH = '/privacy'
+
+function normalizePath(pathname) {
+	if (pathname === LEGACY_EXPLORE_PATH) return EXPLORE_PATH
+	return pathname || '/'
+}
+
+function isProtectedPath(pathname) {
+	return pathname === INTERACTION_CHECK_PATH
+}
 
 function getStreakFromStorage() {
 	try {
@@ -89,12 +110,29 @@ function App() {
 	const [error, setError] = useState('')
 	const [scanStreak, setScanStreak] = useState(0)
 	const [showWelcome, setShowWelcome] = useState(true)
+	const [currentPath, setCurrentPath] = useState(normalizePath(window.location.pathname))
 	const [currentUser, setCurrentUser] = useState(null)
 	const [isAuthenticated, setIsAuthenticated] = useState(false)
 	const [authMode, setAuthMode] = useState('login') // 'login' or 'signup'
 	const [checkingAuth, setCheckingAuth] = useState(true)
 
 	const hasResult = useMemo(() => Boolean(scanResult), [scanResult])
+
+	useEffect(() => {
+		if (window.location.pathname === LEGACY_EXPLORE_PATH) {
+			window.history.replaceState({}, '', EXPLORE_PATH)
+		}
+
+		const handlePopState = () => {
+			const nextPath = normalizePath(window.location.pathname)
+			if (window.location.pathname === LEGACY_EXPLORE_PATH) {
+				window.history.replaceState({}, '', EXPLORE_PATH)
+			}
+			setCurrentPath(nextPath)
+		}
+		window.addEventListener('popstate', handlePopState)
+		return () => window.removeEventListener('popstate', handlePopState)
+	}, [])
 
 	useEffect(() => {
 		setScanStreak(getStreakFromStorage())
@@ -217,6 +255,10 @@ function App() {
 	}
 
 	const handleGetStarted = () => {
+		if (currentPath !== '/') {
+			window.history.pushState({}, '', '/')
+			setCurrentPath('/')
+		}
 		setShowWelcome(false)
 		if (isAuthenticated) {
 			// Already logged in, go to main app
@@ -227,13 +269,32 @@ function App() {
 		}
 	}
 
+	const handleNavigate = (path) => {
+		if (!path || path === '#') return
+		if (path === currentPath) return
+
+		window.history.pushState({}, '', path)
+		setCurrentPath(path)
+		window.scrollTo({ top: 0, behavior: 'smooth' })
+
+		if (path === '/' && !isAuthenticated) {
+			setShowWelcome(true)
+		}
+	}
+
 	const primaryMedicine = scanResult?.medicine || 'No medicine scanned yet'
 	const quickStatus = scanResult?.status || 'ready'
 
 	if (checkingAuth) {
 		return (
 			<>
-				<AppHeader currentUser={currentUser} onLogout={handleLogout} onGetStarted={handleGetStarted} />
+				<AppHeader
+					currentUser={currentUser}
+					onLogout={handleLogout}
+					onGetStarted={handleGetStarted}
+					onNavigate={handleNavigate}
+					currentPath={currentPath}
+				/>
 				<div
 					style={{
 						display: 'flex',
@@ -244,7 +305,99 @@ function App() {
 				>
 					Loading...
 				</div>
-				<AppFooter />
+				<AppFooter onNavigate={handleNavigate} />
+			</>
+		)
+	}
+
+	if (currentPath === EXPLORE_PATH) {
+		return (
+			<>
+				<AppHeader
+					currentUser={currentUser}
+					onLogout={handleLogout}
+					onGetStarted={handleGetStarted}
+					onNavigate={handleNavigate}
+					currentPath={currentPath}
+				/>
+				<main className="welcome-site">
+					<HowItWorks onGetStarted={handleGetStarted} />
+				</main>
+				<AppFooter onNavigate={handleNavigate} />
+			</>
+		)
+	}
+
+	if (currentPath === VERIFY_MEDICINE_PATH) {
+		return (
+			<>
+				<AppHeader
+					currentUser={currentUser}
+					onLogout={handleLogout}
+					onGetStarted={handleGetStarted}
+					onNavigate={handleNavigate}
+					currentPath={currentPath}
+				/>
+				<main style={{ flex: 1 }}>
+					<VerifyMedicine />
+				</main>
+				<AppFooter onNavigate={handleNavigate} />
+			</>
+		)
+	}
+
+	if (currentPath === ABOUT_PATH) {
+		return (
+			<>
+				<AppHeader currentUser={currentUser} onLogout={handleLogout} onGetStarted={handleGetStarted} onNavigate={handleNavigate} currentPath={currentPath} />
+				<main style={{ flex: 1 }}><About /></main>
+				<AppFooter onNavigate={handleNavigate} />
+			</>
+		)
+	}
+
+	if (currentPath === PRIVACY_PATH) {
+		return (
+			<>
+				<AppHeader currentUser={currentUser} onLogout={handleLogout} onGetStarted={handleGetStarted} onNavigate={handleNavigate} currentPath={currentPath} />
+				<main style={{ flex: 1 }}><Privacy /></main>
+				<AppFooter onNavigate={handleNavigate} />
+			</>
+		)
+	}
+
+	if (currentPath === CONTACT_PATH) {
+		return (
+			<>
+				<AppHeader
+					currentUser={currentUser}
+					onLogout={handleLogout}
+					onGetStarted={handleGetStarted}
+					onNavigate={handleNavigate}
+					currentPath={currentPath}
+				/>
+				<main style={{ flex: 1 }}>
+					<Contact />
+				</main>
+				<AppFooter onNavigate={handleNavigate} />
+			</>
+		)
+	}
+
+	if (currentPath === INTERACTION_CHECK_PATH) {
+		return (
+			<>
+				<AppHeader
+					currentUser={currentUser}
+					onLogout={handleLogout}
+					onGetStarted={handleGetStarted}
+					onNavigate={handleNavigate}
+					currentPath={currentPath}
+				/>
+				<main style={{ flex: 1, padding: '1.5rem 0 2rem' }}>
+					<InteractionBox />
+				</main>
+				<AppFooter onNavigate={handleNavigate} />
 			</>
 		)
 	}
@@ -253,9 +406,15 @@ function App() {
 	if (showWelcome) {
 		return (
 			<>
-				<AppHeader currentUser={currentUser} onLogout={handleLogout} onGetStarted={handleGetStarted} />
+				<AppHeader
+					currentUser={currentUser}
+					onLogout={handleLogout}
+					onGetStarted={handleGetStarted}
+					onNavigate={handleNavigate}
+					currentPath={currentPath}
+				/>
 				<WelcomeScreen onGetStarted={handleGetStarted} />
-				<AppFooter />
+				<AppFooter onNavigate={handleNavigate} />
 			</>
 		)
 	}
@@ -264,12 +423,18 @@ function App() {
 	if (authMode === 'login' && !isAuthenticated) {
 		return (
 			<>
-				<AppHeader currentUser={currentUser} onLogout={handleLogout} onGetStarted={handleGetStarted} />
+				<AppHeader
+					currentUser={currentUser}
+					onLogout={handleLogout}
+					onGetStarted={handleGetStarted}
+					onNavigate={handleNavigate}
+					currentPath={currentPath}
+				/>
 				<Login
 					onLoginSuccess={handleLoginSuccess}
 					onSwitchToSignup={() => setAuthMode('signup')}
 				/>
-				<AppFooter />
+				<AppFooter onNavigate={handleNavigate} />
 			</>
 		)
 	}
@@ -277,19 +442,31 @@ function App() {
 	if (authMode === 'signup' && !isAuthenticated) {
 		return (
 			<>
-				<AppHeader currentUser={currentUser} onLogout={handleLogout} onGetStarted={handleGetStarted} />
+				<AppHeader
+					currentUser={currentUser}
+					onLogout={handleLogout}
+					onGetStarted={handleGetStarted}
+					onNavigate={handleNavigate}
+					currentPath={currentPath}
+				/>
 				<Signup
 					onSignupSuccess={handleSignupSuccess}
 					onSwitchToLogin={() => setAuthMode('login')}
 				/>
-				<AppFooter />
+				<AppFooter onNavigate={handleNavigate} />
 			</>
 		)
 	}
 
 	return (
 		<>
-			<AppHeader currentUser={currentUser} onLogout={handleLogout} onGetStarted={handleGetStarted} />
+			<AppHeader
+				currentUser={currentUser}
+				onLogout={handleLogout}
+				onGetStarted={handleGetStarted}
+				onNavigate={handleNavigate}
+				currentPath={currentPath}
+			/>
 			<main className="app-shell">
 				<div className="phone-frame">
 					<div className="app-backdrop app-backdrop-one" aria-hidden="true" />
@@ -392,9 +569,10 @@ function App() {
 				</nav>
 			</div>
 		</main>
-			<AppFooter />
+			<AppFooter onNavigate={handleNavigate} />
 		</>
 	)
 }
 
 export default App
+
