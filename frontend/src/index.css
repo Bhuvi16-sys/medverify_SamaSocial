@@ -87,24 +87,46 @@ body,
 }
 
 body {
-  overflow-x: hidden;
+	margin: 0;
+	min-height: 100vh;
+	color: var(--text-main);
+	display: flex;
+	flex-direction: column;
 }
 
-button,
-input,
-textarea,
-select {
-  font: inherit;
+#root {
+	min-height: 100vh;
+	display: flex;
+	flex-direction: column;
 }
 
-a {
-  color: inherit;
-  text-decoration: none;
+#root > * {
+	display: flex;
+	flex-direction: column;
 }
 
-.app-root {
-  min-height: 100vh;
-  padding: 1rem 1.25rem 3rem;
+#root > main {
+	flex: 1;
+}
+
+.app-shell {
+	width: min(1180px, 100% - clamp(0.75rem, 4vw, 2rem));
+	margin: 0 auto;
+	padding: clamp(0.6rem, 2.5vw, 1.2rem) 0 2rem;
+	flex: 1;
+}
+
+.phone-frame {
+	position: relative;
+	overflow: hidden;
+	width: min(460px, 100%);
+	margin: 0 auto;
+	padding: clamp(0.85rem, 3.8vw, 1.1rem) clamp(0.8rem, 3.8vw, 1rem) 5.4rem;
+	border: 1px solid rgba(223, 214, 199, 0.9);
+	border-radius: clamp(24px, 5vw, 34px);
+	background: linear-gradient(180deg, rgba(255, 255, 255, 0.92), rgba(251, 248, 242, 0.96));
+	box-shadow: var(--shadow-soft);
+	backdrop-filter: blur(14px);
 }
 
 .route-shell {
@@ -871,7 +893,7 @@ a {
 	position: relative;
 	align-items: center;
 	justify-content: space-between;
-	margin-bottom: 1rem;
+	margin-bottom: clamp(0.75rem, 2vw, 1rem);
 	gap: 0.75rem;
 }
 
@@ -954,6 +976,7 @@ a {
 }
 
 .language-pill,
+.logout-button,
 .live-pill,
 .mini-badge,
 .status-pill,
@@ -968,6 +991,21 @@ a {
 	padding: 0.68rem 0.84rem;
 	font-size: 0.8rem;
 	color: #2f4431;
+}
+
+.logout-button {
+	border: 1px solid var(--stroke-soft);
+	background: linear-gradient(145deg, #dc3545, #c41e3a);
+	padding: 0.68rem 0.84rem;
+	font-size: 0.8rem;
+	color: white;
+	cursor: pointer;
+	transition: all 0.2s ease;
+}
+
+.logout-button:hover {
+	transform: translateY(-1px);
+	box-shadow: 0 4px 12px rgba(220, 53, 69, 0.3);
 }
 
 .hero-card {
@@ -994,7 +1032,7 @@ a {
 .hero-card h1 {
 	margin: 0.35rem 0 0;
 	font-family: 'Fraunces', Georgia, serif;
-	font-size: clamp(2.2rem, 11vw, 3.4rem);
+	font-size: clamp(1.9rem, 10vw, 3.4rem);
 	line-height: 0.98;
 	letter-spacing: -0.04em;
 }
@@ -1620,13 +1658,13 @@ a {
 
 .bottom-nav {
 	position: absolute;
-	left: 1rem;
-	right: 1rem;
+	left: clamp(0.8rem, 3.8vw, 1rem);
+	right: clamp(0.8rem, 3.8vw, 1rem);
 	bottom: 1rem;
 	align-items: center;
 	justify-content: space-between;
 	padding: 0.7rem 0.5rem;
-	border-radius: 24px;
+	border-radius: clamp(18px, 5vw, 24px);
 	background: rgba(255, 255, 255, 0.92);
 	border: 1px solid #e7dfd1;
 	box-shadow: 0 16px 28px rgba(79, 88, 61, 0.1);
@@ -1714,14 +1752,86 @@ a {
 	}
 }
 
+@media (max-width: 560px) {
+	.app-shell {
+		width: 100%;
+	}
+
+	.brand-caption {
+		display: none;
+	}
+
+	.language-pill {
+		padding: 0.56rem 0.7rem;
+		font-size: 0.74rem;
+	}
+
+	.hero-card {
+		padding: 1rem;
+	}
+
+	.subhead {
+		font-size: 0.9rem;
+		line-height: 1.6;
+	}
+
+	.hero-trust-row {
+		font-size: 0.72rem;
+	}
+
+	.shortcut-grid {
+		gap: 0.6rem;
+	}
+
+	.shortcut-card {
+		padding: 0.82rem;
+	}
+
+	.nav-item span {
+		font-size: 0.64rem;
+	}
+
+	.nav-icon {
+		width: 34px;
+		height: 34px;
+	}
+}
+
 @media (max-width: 420px) {
 	.phone-frame {
-		padding-left: 0.85rem;
-		padding-right: 0.85rem;
+		padding-left: 0.7rem;
+		padding-right: 0.7rem;
+		padding-bottom: 5.1rem;
 	}
 
 	.hero-card h1 {
-		font-size: 2rem;
+		font-size: 1.8rem;
+	}
+
+	.hero-mini-stats {
+		gap: 0.5rem;
+	}
+
+	.hero-mini-stats div {
+		padding: 0.75rem;
+	}
+
+	.scan-cta {
+		padding: 0.85rem;
+	}
+
+	.scan-cta-icon {
+		width: 40px;
+		height: 40px;
+	}
+
+	.bottom-nav {
+		padding: 0.55rem 0.3rem;
+	}
+
+	.nav-item {
+		padding: 0.15rem 0.15rem;
+		gap: 0.25rem;
 	}
 
 	.price-grid {

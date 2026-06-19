@@ -5,14 +5,20 @@ import {
 	verifyMedicine,
 } from '../controllers/medicineController.js'
 import { checkInteractions } from '../controllers/interactionController.js'
-import authRoutes from './authRoutes.js'
+import { register, login, getCurrentUser } from '../controllers/authController.js'
+import verifyToken from '../middleware/auth.js'
 
 const router = Router()
 
-router.use('/auth', authRoutes)
+// Auth routes
+router.post('/auth/register', register)
+router.post('/auth/login', login)
+router.get('/auth/me', getCurrentUser)
+
+// Protected medicine routes
 router.get('/verify', verifyMedicine)
-router.post('/scan-log', logScan)
-router.get('/heatmap', getHeatmap)
-router.post('/interactions', checkInteractions)
+router.post('/scan-log', verifyToken, logScan)
+router.get('/heatmap', verifyToken, getHeatmap)
+router.post('/interactions', verifyToken, checkInteractions)
 
 export default router

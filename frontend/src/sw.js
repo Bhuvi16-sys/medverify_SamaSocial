@@ -3,7 +3,7 @@ import { cleanupOutdatedCaches, precacheAndRoute } from 'workbox-precaching'
 precacheAndRoute(self.__WB_MANIFEST)
 cleanupOutdatedCaches()
 
-const VERIFY_CACHE = 'dawacheck-verify-v1'
+const VERIFY_CACHE = 'medverify-verify-v1'
 const MAX_VERIFY_ENTRIES = 20
 
 self.addEventListener('install', () => {
@@ -59,12 +59,12 @@ self.addEventListener('fetch', (event) => {
 
 self.addEventListener('push', (event) => {
 	const payload = event.data?.json?.() || {
-		title: 'DawaCheck Reminder',
+		title: 'MedVerify Reminder',
 		body: 'Medicine recheck reminder is due.',
 	}
 
 	event.waitUntil(
-		self.registration.showNotification(payload.title || 'DawaCheck Reminder', {
+		self.registration.showNotification(payload.title || 'MedVerify Reminder', {
 			body: payload.body || 'Apni dawa ko recheck karein.',
 			icon: '/icon-192.png',
 			badge: '/icon-192.png',
