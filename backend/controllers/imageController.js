@@ -61,15 +61,23 @@ export const verifyMedicineImage = async (req, res, next) => {
 			console.error('Failed to save OCR record during image verify:', dbErr.message)
 		}
 
-		// Query local database for a match (fuzzy match similar to verifyMedicine)
-		const searchRegex = new RegExp(extractedName.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&'), 'i')
-		let drug = await Drug.findOne({
-			$or: [
-				{ name: { $regex: searchRegex } },
-				{ genericName: { $regex: searchRegex } },
-				{ manufacturer: { $regex: searchRegex } },
-			],
-		}).lean()
+		// 1. Prioritize $text Search Over Regex using the text index
+		let drug = await Drug.findOne(
+			{ $text: { $search: extractedName } },
+			{ score: { $meta: 'textScore' } }
+		).sort({ score: { $meta: 'textScore' } }).lean()
+
+		if (!drug) {
+			// Fallback to regex match if text search returns no results
+			const searchRegex = new RegExp(extractedName.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&'), 'i')
+			drug = await Drug.findOne({
+				$or: [
+					{ name: { $regex: searchRegex } },
+					{ genericName: { $regex: searchRegex } },
+					{ manufacturer: { $regex: searchRegex } },
+				],
+			}).lean()
+		}
 
 		if (!drug) {
 			// Token-based keyword fallback search
@@ -81,37 +89,29 @@ export const verifyMedicineImage = async (req, res, next) => {
 
 			if (cleanWords.length > 0) {
 				console.log(`[IMAGE OCR VERIFY] No direct match for "${extractedName}". Trying keyword fallback for:`, cleanWords);
-				// Search for a drug that contains any of the clean keywords
-				// We prioritize exact word match first
-				for (const word of cleanWords) {
-					const wordRegex = new RegExp(`\\b${word}\\b`, 'i');
-					const fallbackDrug = await Drug.findOne({
-						$or: [
-							{ name: { $regex: wordRegex } },
-							{ genericName: { $regex: wordRegex } }
-						]
-					}).lean();
-					if (fallbackDrug) {
-						drug = fallbackDrug;
-						break;
-					}
-				}
+				
+				// 2. Optimize the Keyword Fallback Logic by combining into a single query
+				const wordRegexes = cleanWords.map(word => new RegExp(`\\b${word}\\b`, 'i'));
+				const wordOrClauses = wordRegexes.map(regex => ({
+					$or: [
+						{ name: { $regex: regex } },
+						{ genericName: { $regex: regex } }
+					]
+				}));
 
-				// If word boundary match fails, try a simple substring match for the keyword
+				drug = await Drug.findOne({ $or: wordOrClauses }).lean();
+
+				// If word boundary match fails, try a simple substring match for the keywords in a single query
 				if (!drug) {
-					for (const word of cleanWords) {
-						const wordRegex = new RegExp(word, 'i');
-						const fallbackDrug = await Drug.findOne({
-							$or: [
-								{ name: { $regex: wordRegex } },
-								{ genericName: { $regex: wordRegex } }
-							]
-						}).lean();
-						if (fallbackDrug) {
-							drug = fallbackDrug;
-							break;
-						}
-					}
+					const substringRegexes = cleanWords.map(word => new RegExp(word, 'i'));
+					const substringOrClauses = substringRegexes.map(regex => ({
+						$or: [
+							{ name: { $regex: regex } },
+							{ genericName: { $regex: regex } }
+						]
+					}));
+					
+					drug = await Drug.findOne({ $or: substringOrClauses }).lean();
 				}
 			}
 		}
