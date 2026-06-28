@@ -230,7 +230,10 @@ export const logScan = async (req, res, next) => {
 			req.body || {}
 
 		const normalizedMedicine = String(medicine || medicineName || '').trim()
-		const normalizedResult = String(result || '').trim().toLowerCase() || 'not_found'
+		let normalizedResult = String(result || '').trim().toLowerCase() || 'not_found'
+		if (normalizedResult === 'suspect') normalizedResult = 'flagged'
+		if (normalizedResult === 'counterfeit') normalizedResult = 'expired'
+		
 		const finalLat = Number(lat ?? latitude)
 		const finalLng = Number(lng ?? longitude)
 

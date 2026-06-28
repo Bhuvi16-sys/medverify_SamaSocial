@@ -5,7 +5,6 @@ const scanLogSchema = new mongoose.Schema({
 	result: {
 		type: String,
 		required: true,
-		enum: ['genuine', 'flagged', 'expired', 'not_found', 'safe', 'caution', 'dangerous'],
 		default: 'not_found',
 	},
 	latitude: { type: Number, required: true },
