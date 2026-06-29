@@ -43,10 +43,13 @@
 
 ## 📸 Interface Preview
 
-| Home Screen | Scanner Interface | Verification Results | Counterfeit Heatmap |
+| Home Screen | Scanner Interface | Interaction Check | Counterfeit Heatmap |
 | :---: | :---: | :---: | :---: |
-| ![Home](<img width="2844" height="1550" alt="image" src="https://github.com/user-attachments/assets/024f0a82-46a6-466c-8ca3-019a368c49a5" />
- | ![Scan](docs/screenshot-scan.png) | ![Result](docs/screenshot-result.png) | ![Heatmap](docs/screenshot-heatmap.png) |
+| ![Home]<img width="2844" height="1550" alt="image" src="https://github.com/user-attachments/assets/024f0a82-46a6-466c-8ca3-019a368c49a5" />
+ | ![Scan]<img width="2876" height="1530" alt="image" src="https://github.com/user-attachments/assets/9474ed70-40cb-44e5-9964-10ebe3b13c90" />
+ | ![interaction]<img width="2878" height="1516" alt="image" src="https://github.com/user-attachments/assets/3bd607e0-0d52-4bdc-8a72-a5fcefef3cd6" />
+ | ![Heatmap]<img width="2876" height="916" alt="image" src="https://github.com/user-attachments/assets/eda2b4bc-0413-4101-bef0-6aea43692538" />
+ |
 
 ---
 
