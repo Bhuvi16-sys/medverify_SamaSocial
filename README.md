@@ -94,7 +94,22 @@ Start Command: node server.js
 Required Variables: MONGO_URI, GEMINI_API_KEY, GEMINI_MODEL=gemini-2.0-flash, PORT=5000
 
 ---
+## API Reference
 
+| Method | Endpoint           | Description                          |
+|--------|--------------------|---------------------------------------|
+| GET    | `/api/verify`      | Verify a medicine — `?name=Metformin` |
+| POST   | `/api/scan-log`     | Log a scan event for heatmap analytics |
+| POST   | `/api/interactions` | Check drug interaction risk          |
+| GET    | `/api/heatmap`      | Fetch aggregated counterfeit hotspots |
+
+## PWA & Mobile Testing
+
+1. Build the frontend: `npm run build`
+2. Deploy backend → Render, frontend → Vercel
+3. Set on Vercel: `VITE_API_URL=https://your-render-url.onrender.com`
+4. On Android Chrome, open the deployed site and select **Add to Home Screen**
+5. Validate the full scan → result → heatmap flow on at least 3 Android devices
 ## 🧑‍💻 The Development Team
 
 | Team Member | Role & Key Responsibilities |
