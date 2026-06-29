@@ -92,3 +92,32 @@ Build Command: npm install
 Start Command: node server.js
 
 Required Variables: MONGO_URI, GEMINI_API_KEY, GEMINI_MODEL=gemini-2.0-flash, PORT=5000
+
+---
+
+## 🧑‍💻 The Development Team
+
+| Team Member | Role & Key Responsibilities |
+| :--- | :--- |
+| **Backend Lead** | Database architecture, MongoDB optimization pipelines, Gemini AI prompt tuning, and core endpoint contracts. |
+| **Frontend Engineer** | Client application lifecycle, Tesseract.js OCR integration, camera UX workflows, and Web Audio synthesizers. |
+| **PWA & DevOps** | Service worker configurations, interactive Leaflet heatmap modeling, cloud deployments, and demo workflows. |
+
+---
+
+## 🎯 Live Stage Demonstration Guide
+
+To ensure a seamless, high-impact walkthrough during live judging, adhere to the following sequence:
+
+1. **The Trust Baseline:** Scan a *genuine* medicine strip to showcase high-speed OCR extraction, the green success state, and localized Hindi playback.
+2. **The Threat Detection:** Scan a *flagged/expired* strip to demonstrate immediate UI state shifts into high-alert hazard metrics.
+3. **The Big Picture:** Transition directly to the geolocated **Counterfeit Heatmap**, pausing for 3–5 seconds to emphasize data collection scale.
+4. **The Closing Hook:** Conclude with the core project paradigm: *"This decentralized data ecosystem did not exist before MedVerify."*
+
+---
+
+## 📌 Critical Production Notes
+
+* 🚨 **Environment Variables:** Never commit active `.env` development setups to the shared repository. Always utilize platform-level secret managers.
+* ⚡ **Container Warm-up:** Trigger an initial mock request to the Render backend service **10 minutes prior to your live presentation** to eliminate automated spin-up container sleep latency.
+* 📹 **Contingency Planning:** Maintain a fully rendered, high-resolution 60-second backup demonstration recording stored offline or on Google Drive to safeguard against presentation stage network drops.
