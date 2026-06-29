@@ -121,3 +121,11 @@ To ensure a seamless, high-impact walkthrough during live judging, adhere to the
 * 🚨 **Environment Variables:** Never commit active `.env` development setups to the shared repository. Always utilize platform-level secret managers.
 * ⚡ **Container Warm-up:** Trigger an initial mock request to the Render backend service **10 minutes prior to your live presentation** to eliminate automated spin-up container sleep latency.
 * 📹 **Contingency Planning:** Maintain a fully rendered, high-resolution 60-second backup demonstration recording stored offline or on Google Drive to safeguard against presentation stage network drops.
+---
+
+## 🌟 Support & Contributions
+
+If you find this project innovative, impactful, or helpful for your own hackathon inspirations, please consider giving this repository a **Star**! Your support keeps the team motivated to optimize and expand the platform.
+
+```text
+💡 Fun Fact: Every star helps push MedVerify higher up the GitHub trending dashboard under health-tech and civic-innovation!
