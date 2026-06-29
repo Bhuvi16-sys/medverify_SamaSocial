@@ -11,7 +11,7 @@
 ---
 
 ## 📺 Live Demo & Walkthrough
-
+### 🚀 [Launch Live App (DawaCheck)](https://dawacheck-gamma.vercel.app/)
 ### 🔗 [Watch Demo Video](https://youtu.be/CwKlz3iYRG8)
 
 [![MedVerify Video Walkthrough](https://img.shields.io/badge/YouTube-Watch%20Video%20Walkthrough-red?style=for-the-badge&logo=youtube)](https://youtu.be/CwKlz3iYRG8)
@@ -45,7 +45,8 @@
 
 | Home Screen | Scanner Interface | Verification Results | Counterfeit Heatmap |
 | :---: | :---: | :---: | :---: |
-| ![Home](docs/screenshot-home.png) | ![Scan](docs/screenshot-scan.png) | ![Result](docs/screenshot-result.png) | ![Heatmap](docs/screenshot-heatmap.png) |
+| ![Home](<img width="2844" height="1550" alt="image" src="https://github.com/user-attachments/assets/024f0a82-46a6-466c-8ca3-019a368c49a5" />
+ | ![Scan](docs/screenshot-scan.png) | ![Result](docs/screenshot-result.png) | ![Heatmap](docs/screenshot-heatmap.png) |
 
 ---
 
