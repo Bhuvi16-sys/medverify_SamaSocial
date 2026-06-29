@@ -55,3 +55,40 @@
 medverify/
 ├── frontend/     # React PWA client application
 └── backend/      # Node.js API engine, Mongoose models, & CSV data pipeline
+
+## 🚀 Getting Started
+
+### Prerequisites
+* Node.js 18+
+* MongoDB Instance (Local or Atlas)
+* Google Gemini API Key
+
+---
+
+### 1️⃣ Backend Setup
+
+1. **Navigate & Install Dependencies:**
+   ```bash
+   cd backend
+   npm install
+### 2️⃣ Frontend Setup
+   Navigate & Install Dependencies:
+
+    Bash
+    cd ../frontend
+    npm install
+    Configure Environment Variables:
+
+Bash
+cp .env.example .env
+Ensure it points to your local backend server instance:
+
+🌐 Production Cloud Deployment
+Backend (Render Deployment)
+Root Directory: backend
+
+Build Command: npm install
+
+Start Command: node server.js
+
+Required Variables: MONGO_URI, GEMINI_API_KEY, GEMINI_MODEL=gemini-2.0-flash, PORT=5000
